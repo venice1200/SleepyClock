@@ -1,89 +1,141 @@
 
-  SleepyClock 0.1.5
-  based on TapClock 0.8.x
-  License: MIT
-  Get Support: https://community.watchx.io/
+SleepyClock 0.1.5
+based on TapClock 0.8.x
+License: MIT
+Get Support: https://community.watchx.io/
+Using Atom Editor and PlatformIO (PIO)
 
-  Very Urgent !!
-  You need an calibrated MPU, see setup().
-  Get the Calibration Sketch from here: https://github.com/venice1200/TapClock/blob/master/CalibratingSketch/WatchX_IMU_Zero_0x69.ino
-  See ReadMe of TapClock https://github.com/venice1200/TapClock/blob/master/TapClock/PreviousVersions/TapClock_v0.8.4/TapClock_v0.8.4_ReadMe.txt and search for "calibration".
-  Add you Calibration Values to the MPU_CalVal_watchX.h file and make sure this file is "included".
+Very Urgent !!
+You need an calibrated MPU, see "Calibration".
 
-  Used Libaries:
-   -watchX libs by ArgeX                   see http://watchx.io/downloads_en.html
-   -I2CDEVLIB & MPU6050                    see https://github.com/jrowberg/i2cdevlib
-   -DS3232RTC RTC Library                  see https://github.com/JChristensen/DS3232RTC
-   -Time (needed by RTC lib)               see https://github.com/PaulStoffregen/Time
-   -SSD1306 Text Library                   see https://github.com/greiman/SSD1306Ascii
-   -Adafruit Sleepy Dog                    see https://github.com/adafruit/Adafruit_SleepyDog
-   -Streaming by Mikal Hart                see https://github.com/geneReeves/ArduinoStreaming fork of Mikal Hart's streaming5.zip
-   -Edge by me                             see https://github.com/venice1200/Edge
+Files & Folder
+.\src                         Main Source file "main.cpp"
+.\lib                         Manually added libs like my own "Edge" lib
+.\include                     Manually added .h files (#include..) like the font or the calibration data files
 
-   -PlatformIO libs:
-   lib_deps = I2Cdevlib-Core, I2Cdevlib-MPU6050, DS3232RTC, Time, SSD1306Ascii, Adafruit SleepyDog Library, Streaming, SparkFun MAG3110 Magnetometer Breakout Arduino Lib
+Libraries:
+You can add libraries to your PIO Project by adding them with the statement "lib_deps" to the file platformio.ini.
+PIO will then download the libs automatically.
+Or you download the libs manually to the "global" storage with "platformio lib -g install lib-name, lib-name2....".
 
-   Buttons:
-      /---------------\
-   [1]|               |[2]
-      |    watchX     |
-      |               |[3]
-      \---------------/
+Buttons
+   /---------------\
+[1]|               |[2]
+   |    watchX     |
+   |               |[3]
+   \---------------/
 
-  How it works:
-  while (true) {
-    watchX's MCU is send to sleep and woken up by the WatchDog timer after SLEEPTIME (see define's).
-    If watchX MCU is up the MPU Sleep Mode is disabled and watchX's Position is checked.
-    If the Position matches the "Read Position" (see Variables) the Display is powered on and shows the clock for a CLOCKTIME (see define's) time.
-    If the Position doesn't match the MPU Sleep Mode is enabled and the MCU goes back to sleep as well...
-  }
+How it works:
+The Loop
+  watchX's MCU is permanently send to sleep and woken up by the MCU WatchDog timer after SLEEPTIME (see define's).
+  If watchX is up, the MPU's Sleep Mode is disabled and watchX's Position is checked.
+  If the Position matches the "Read Position" (see Variables), the Display is powered on and shows the clock for a CLOCKTIME (see define's) time.
+  If the Position doesn't match, the MPU Sleep Mode is enabled and the MCU goes back to sleep as well...
 
-  An longer SLEEPTIME keeps watchX longer on battery.
-  With an shorter SLEEPTIME you get a better wakeup reaction.
-  Values of around 60/120/250  and 500ms are good in case of reaction time and battery life.
-  With  60ms SLEEPTIME the System runs for around xxx hrs
-  With 120ms SLEEPTIME the System runs for around 30 hrs (10% Battery)
-  With 250ms SLEEPTIME the System runs for around 41 hrs
-  With 500ms SLEEPTIME the System runs for around xx hrs
+USB Power prevents the System from sleeping
 
-  USB Power prevents the System from sleeping
+HowTo Use:
+-Bring watchX in an readable Position (x: 25-85°, y: +/-10°, z doesn't matter) to get the Clock screen shown.
+-If the Clock is up, the Upper Left Button (1) opens the Setup Menu to adjust values.
+-If the Clock is up, the Upper Right Button (2) opens the Stats Menu.
+ -In "Stats" the Lower Right Button (3) Resets Uptime and Wakes
+ -In "Stats" you see:
+  -Actual Time
+  -Uptime
+  -Shows: show the "Show Clock" counter
+  -Angles X, Y, Z
+-With the Upper Left Button (1) you go back to the "Clock" Screen.
 
-  USB Connection:
-  If the system is woken up, the command "USBDevice.attach();" is processed to get the lost USB connection back.
-  Means you should/could transfer your sketch without Resetting watchX for Sketch transfer.
-  See here https://github.com/adafruit/Adafruit_SleepyDog/blob/master/README.md for Details.
+USB Connection:
+If the system is woken up, the command "USBDevice.attach();" is processed to get the lost USB connection back.
+Means you should/could transfer your sketch without Resetting watchX for Sketch transfer.
+See here https://github.com/adafruit/Adafruit_SleepyDog/blob/master/README.md for Details.
 
-  HowTo Use:
-  -Bring watchX in an readable postion (x: 25-85°, y: +/-10°, z doesn't matter) to see the Clock screen.
-  -If the Clock is up, the Upper Left Button (1) opens the Setup Menu to adjust values.
-  -If the Clock is up, the Upper Right Button (2) opens the Stats Menu.
-   -In "Stats" the Lower Right Button (3) Resets Uptime and Wakes
-   -In "Stats" you see:
-    -Actual Time
-    -Uptime
-    -Shows: show the "Show Clock" counter
-    -Angles X, Y, Z
-  -With the Upper Left Button (1) you go back to the "Clock" Screen.
+Charging:
+Battery charging is shown with an glowing Right Led.
+If watchX is connected to USB Power the System will never go to sleep if it’s "On".
+You can wait until the display is powered off and then connect USB Power for charging without “display on”.
 
-  Battery Warning/Alarm
-  -If the Battery goes under BATTERY_WARNING the Battery Icon starts to blink.
-  -If the Battery goes over BATTERY_OK the Battery Icon stops blinking
+Battery Warning/Alarm:
+-If the Battery goes under BATTERY_WARNING the Battery Icon starts to blink.
+-If the Battery goes over BATTERY_OK the Battery Icon stops blinking
 
-  Work in progress...
+Calibration:
+Calibrate your MPU as each MCU is different.
+Get the calibration sketch from here: https://github.com/venice1200/TapClock/tree/master/CalibratingSketch
 
-  Versions:
-  v0.1.3
-   -Move MPU Calibration values into .h file, no need to modify the sketch
+You need to copy the calibration values out of the serial window (9600 baud) of the calibration sketch.
+Open the file "MPU_CalVal_watchX.h" in "include" and replace the below values with yours
+#define mpu_XAccelOffset  106
+#define mpu_YAccelOffset -397
+#define mpu_ZAccelOffset  1255
+#define mpu_XGyroOffset   68
+#define mpu_YGyroOffset  -9
+#define mpu_ZGyroOffset   29
 
-  v0.1.5 (75%/38% Memory)
-   -Added Setup Menu (actualy only) for adjusting Time
+Look here https://i.imgur.com/FOmkXfg.png to see which values are needed
+You have to choose one of the calibration values for each section.
 
-  ToDo:
-   -Build System around (in Progress)
-   -Setup System (via Bluetooth?)
-   -RTC Alarm
-   -Battery Alarm
-   -Testing with original watchX MPU library
+After you have replaced the calibration values with yours, compiled and uploaded the sketch 
+the Stats Screen should show nearly 0 at each Angle if the watchX lies on a flat and horizontal surface.
+See https://i.imgur.com/mNhEpCd.jpg
 
-  Hints:
-   -The MAG Object and Sleep Code uses 2% Sketch
+See also the calibration sketch header as there are some more infos
+like heating up the MPU for 10 Minutes before you run the calibrating sketch
+and use a flat and horizontal surface for calibration.
+
+SLEEPTIME:
+An longer SLEEPTIME keeps watchX longer on battery.
+With an shorter SLEEPTIME you get a better wakeup reaction.
+Values of around 60/120/250  and 500ms are good in case of reaction time and battery life.
+With  60ms SLEEPTIME the System runs for around xxx hrs
+With 120ms SLEEPTIME the System runs for around 30 hrs (10% Battery)
+With 250ms SLEEPTIME the System runs for around 41 hrs
+With 500ms SLEEPTIME the System runs for around xx hrs, Display "Power On" can take up to two seconds.
+
+Libraries:
+-watchX libs by ArgeX                   see https://watchx.io/download.php
+-I2CDEVLIB & MPU6050                    see https://github.com/jrowberg/i2cdevlib
+-DS3232RTC RTC Library                  see https://github.com/JChristensen/DS3232RTC
+-Time (needed by RTC lib)               see https://github.com/PaulStoffregen/Time
+-SSD1306 Text Library                   see https://github.com/greiman/SSD1306Ascii
+-Adafruit Sleepy Dog                    see https://github.com/adafruit/Adafruit_SleepyDog
+-Streaming by Mikal Hart                see https://github.com/geneReeves/ArduinoStreaming fork of Mikal Hart's streaming5.zip
+-Edge by me                             see https://github.com/venice1200/Edge
+
+PlatformIO library list, see platformio.ini
+lib_deps = 
+  I2Cdevlib-Core
+  I2Cdevlib-MPU6050
+  DS3232RTC
+  Time
+  SSD1306Ascii
+  Adafruit SleepyDog Library
+  Streaming
+  SparkFun MAG3110 Magnetometer Breakout Arduino Lib
+
+Tips & Tricks:
+-Angle calculation                      see https://electronics.stackexchange.com/questions/142037/calculating-angles-from-mpu6050
+-Set Time at "Setup"                    see http://www.l8ter.com/?p=417
+-Nick Gammon Microprocessors Infos      see http://www.gammon.com.au/power and http://www.gammon.com.au/interrupts
+
+Credits:
+A watchX Sketch based on watchX Hardware and:
+watchX libs provided by ArgeX
+OLED Library SSD1306Ascii by Greiman
+i2cdevlib/mpu6050 by jrowberg
+DS3232RTC Library by JChristensen
+Time maintained by Paul Stoffregen
+Streaming Lib by Mikal Hart
+Adafruit
+Arduino Team
+The watchX Reddit Community
+
+===================================================
+
+ToDo:
+-Build System around (in Progress)
+-Setup System (via Bluetooth?)
+-RTC Alarm
+-Battery Alarm
+-Testing with original watchX MPU library
