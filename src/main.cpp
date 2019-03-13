@@ -647,14 +647,23 @@ void loop() {
   prev_hr  = act_hr;
 
   // Enable MPU and read values until you get changed values => MPU alive
-  mpu.setSleepEnabled(false);
+  /*
+  // V1
+  if (mpu.getSleepEnabled()) mpu.setSleepEnabled(false);
   do {
-    mpu.getAcceleration(&ax, &ay, &az);
+   mpu.getAcceleration(&ax, &ay, &az);
   } while ((ax == ax_prev) && (ay == ay_prev) && (az == az_prev));
   // Update prev's
   ax_prev = ax;
   ay_prev = ay;
   az_prev = az;
+  */
+  // V2 Make it simpler and maybe faster
+  if (mpu.getSleepEnabled()) {
+    mpu.setSleepEnabled(false);        // Enable MPU
+    delay(50);                         // Wait a moment bt only if the system has slept before
+  }
+  mpu.getAcceleration(&ax, &ay, &az);  // GET MPU Values
 
   // Calculate accelerometer angles
   arx = (180/3.141592) * atan(ax / sqrt(square(ay) + square(az)));
@@ -728,7 +737,7 @@ void loop() {
     oled.ssd1306WriteCmd(SSD1306_DISPLAYOFF);
     // Send MPU to sleep
     mpu.setSleepEnabled(true);
-    while (!mpu.getSleepEnabled());                 // Wait here, just to be sure MPU returns "I am sleeping".
+    // while (!mpu.getSleepEnabled());                 // Wait here, just to be sure MPU returns "I am sleeping".
     // Sleeeeeeeeeeeeep...
     sleepMS = Watchdog.sleep(SLEEPTIME);
 
