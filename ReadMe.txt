@@ -1,12 +1,12 @@
 
-SleepyClock 0.1.5
+SleepyClock 0.1.7/0.1.6
 based on TapClock 0.8.x
 License: MIT
 Get Support: https://community.watchx.io/
 Using Atom Editor and PlatformIO (PIO)
 
 Very Urgent !!
-You need an calibrated MPU, see "Calibration".
+You need an calibrated MPU(IMU), see "Calibration".
 
 Files & Folder
 .\src                         Main Source file "main.cpp"
@@ -16,7 +16,7 @@ Files & Folder
 Libraries:
 You can add libraries to your PIO Project by adding them with the statement "lib_deps" to the file platformio.ini.
 PIO will then download the libs automatically.
-Or you download the libs manually to the "global" storage with "platformio lib -g install lib-name, lib-name2....".
+Or you download the libs manually to the "global" storage with "platformio lib -g install lib-name1, lib-name2....".
 
 Buttons
    /---------------\
@@ -27,7 +27,8 @@ Buttons
 
 How it works:
 The Loop
-  watchX's MCU is permanently send to sleep and woken up by the MCU WatchDog timer after SLEEPTIME (see define's).
+  watchX's MCU and MPU are permanently send to sleep.
+  The MCU is woken up by the internal WatchDog timer after SLEEPTIME (see define's).
   If watchX is up, the MPU's Sleep Mode is disabled and watchX's Position is checked.
   If the Position matches the "Read Position" (see Variables), the Display is powered on and shows the clock for a CLOCKTIME (see define's) time.
   If the Position doesn't match, the MPU Sleep Mode is enabled and the MCU goes back to sleep as well...
@@ -47,7 +48,7 @@ HowTo Use:
 -With the Upper Left Button (1) you go back to the "Clock" Screen.
 
 USB Connection:
-If the system is woken up, the command "USBDevice.attach();" is processed to get the lost USB connection back.
+If the system is woken up and clock is shown, the command "USBDevice.attach();" is processed to get the lost USB connection back.
 Means you should/could transfer your sketch without Resetting watchX for Sketch transfer.
 See here https://github.com/adafruit/Adafruit_SleepyDog/blob/master/README.md for Details.
 
@@ -76,7 +77,7 @@ Open the file "MPU_CalVal_watchX.h" in "include" and replace the below values wi
 Look here https://i.imgur.com/FOmkXfg.png to see which values are needed
 You have to choose one of the calibration values for each section.
 
-After you have replaced the calibration values with yours, compiled and uploaded the sketch 
+After you have replaced the calibration values with yours, compiled and uploaded the sketch
 the Stats Screen should show nearly 0 at each Angle if the watchX lies on a flat and horizontal surface.
 See https://i.imgur.com/mNhEpCd.jpg
 
@@ -104,7 +105,7 @@ Libraries:
 -Edge by me                             see https://github.com/venice1200/Edge
 
 PlatformIO library list, see platformio.ini
-lib_deps = 
+lib_deps =
   I2Cdevlib-Core
   I2Cdevlib-MPU6050
   DS3232RTC

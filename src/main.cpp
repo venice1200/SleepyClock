@@ -31,7 +31,7 @@ MAG3110         mag = MAG3110();
 EDGE            b1edge, b2edge, b3edge, readClockPosEdge;
 
 // "defines"
-#define PROGRAM "SleepyClock v0.1.5"
+#define PROGRAM "SleepyClock v0.1.7"
 
 //Debug or not Debug...
 #define DEBUG 0
@@ -61,6 +61,10 @@ EDGE            b1edge, b2edge, b3edge, readClockPosEdge;
 //#define SLEEPTIME          250      // Steps [ms] 8000,4000,2000,1000,500,250,120,60,30,15 see "WatchdogAVR.cpp"
 #define SLEEPTIME          500      // Steps [ms] 8000,4000,2000,1000,500,250,120,60,30,15 see "WatchdogAVR.cpp"
 #define CLOCKTIME          3500     // "Show the Time" Time
+//#define CHECKPOSTIME       5      // Max time for checking Position
+//#define CHECKPOSTIME       10      // Max time for checking Position
+#define CHECKPOSTIME       20      // Max time for checking Position
+//#define CHECKPOSTIME       100      // Max time for checking Position
 
 #define BATTERY_CRITCAL    10       // Battery Critical Level
 #define BATTERY_WARNING    15       // Battery Warning Level
@@ -108,6 +112,8 @@ bool showSetup = false;
 bool initSetup = true;
 uint16_t shows = 0;
 int sleepMS = 0;
+unsigned long wakeupmillis = 0;
+bool doPosCheck = false;                         // Position Check
 
 //Date & Time
 char datebuffer[10];
@@ -646,33 +652,54 @@ void loop() {
   prev_min = act_min;
   prev_hr  = act_hr;
 
-  // Enable MPU and read values until you get changed values => MPU alive
+  // Wakeup and Position check
   /*
   // V1
+  // Enable MPU and read values until you get changed values, means MPU alive
   if (mpu.getSleepEnabled()) mpu.setSleepEnabled(false);
   do {
-   mpu.getAcceleration(&ax, &ay, &az);
+    mpu.getAcceleration(&ax, &ay, &az);
   } while ((ax == ax_prev) && (ay == ay_prev) && (az == az_prev));
   // Update prev's
   ax_prev = ax;
   ay_prev = ay;
   az_prev = az;
   */
-  // V2 Make it simpler and maybe faster
+
+  /*
+  // V2
+  // Make it simpler and maybe faster
   if (mpu.getSleepEnabled()) {
     mpu.setSleepEnabled(false);        // Enable MPU
     delay(50);                         // Wait a moment bt only if the system has slept before
   }
   mpu.getAcceleration(&ax, &ay, &az);  // GET MPU Values
+  */
 
+  // V3
+  // Do Position check for max "CHECKPOSTIME"
+  // Wakeup MPU if disabled, set Timer with Current Millis and set "doPosCheck" to "1"
+  if (mpu.getSleepEnabled()) {
+    mpu.setSleepEnabled(false);
+    wakeupmillis = currentmillis;
+    doPosCheck = true;
+  }
+
+  // End check after "CHECKPOSTIME"
+  if ( (currentmillis - wakeupmillis) >= CHECKPOSTIME ) {
+    doPosCheck = false;
+  }
+
+  // Read MPU
+  mpu.getAcceleration(&ax, &ay, &az);  // GET MPU Values
   // Calculate accelerometer angles
   arx = (180/3.141592) * atan(ax / sqrt(square(ay) + square(az)));
   ary = (180/3.141592) * atan(ay / sqrt(square(ax) + square(az)));
   arz = (180/3.141592) * atan(sqrt(square(ay) + square(ax)) / az);
-
   // Check Position and Update the Edge Object
   readClockPos = checkposition(arx, ary, xclockposmin, xclockposmax, yclockposmin, yclockposmax);
   readClockPosEdge.update(readClockPos);
+  // V3 end
 
   // LED Fader
   if (currentmillis - chargeledmillis > chargeledinterval) {
@@ -725,12 +752,14 @@ void loop() {
     analogWrite(LEDR, 0);
   }
 
-  // LEDL (Read-Watch-Position)
-  // digitalWrite(LEDL, readClockPos);
+  // LEDL (On for max 100ms)
+  //digitalWrite(LEDL, doPosCheck);
 
   // Sleep
-  // If Clock is not shown send MPU and MCU to sleep and Power off Display
-  if (!showClock && !showStats && !showSetup && !usbConnected) {
+  // If Clock is not shown and no other Mode is active send MPU and MCU to sleep and Power off Display
+  // "doPosCheck" prevents the System from Sleep
+  // An USB Power connection prevents the System from Sleep
+  if (!showClock && !showStats && !showSetup && !doPosCheck && !usbConnected) {
     initClock = true;                               // Reset Clock Init
     // Clear Oled and Power Off
     oled.clear();
@@ -751,6 +780,7 @@ void loop() {
   if (readClockPosEdge.rising() && !showClock) {
     showClock = true;
     previousclockmillis = currentmillis;
+    mpu.setSleepEnabled(true);
   }
 
   // If Stats or Setup is active or USB is connected, update the time counter permanently so the CLOCKTIME never runs through completely
@@ -769,6 +799,7 @@ void loop() {
     showStats = true;
     initStats = true;
     initClock = true;
+    mpu.setSleepEnabled(false);
   }
 
   // Setup On
@@ -781,6 +812,7 @@ void loop() {
   // Stats Off
   if (showStats && !initStats && b1neg) {
     showStats = false;
+    mpu.setSleepEnabled(true);
   }
 
   // Setup Exit
