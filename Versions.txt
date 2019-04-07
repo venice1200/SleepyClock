@@ -1,10 +1,19 @@
 Versions.txt
 
+v0.1.9 (97,6%/45,1% Memory, 78%/40% Memory without MAG/BMP code)
+-Added Contrast to Setup and EEProm
+-Added Button-Longpress to Setup Menu using JC_Button Library for Menu scrolling and value changing
+-Added Sensor Screen with Button (3)
+ Sensor Screen shows IMU/MPU (moved from "Stats"), MAG and BMP values
+
+v0.1.8
+-Changing run "getBattery" in Clock and Stats
+
 v0.1.7
 -Modification to detect the Position after Wakeup
 -The Boolean "doPosCheck" is "1" for "CHECKPOSTIME" and blocks the system from Sleep
  If we get "ReadPosition" during "doPosCheck" is "1" the Clock is shown
- If not back to Sleep.
+ If not the system goes back to Sleep.
 
 v0.1.6
 -Send MPU/IMU directly to sleep after clock is shown

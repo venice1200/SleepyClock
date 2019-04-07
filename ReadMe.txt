@@ -1,6 +1,5 @@
 
-SleepyClock 0.1.7/0.1.6
-based on TapClock 0.8.x
+SleepyClock 0.1.x (based on TapClock 0.8.x)
 License: MIT
 Get Support: https://community.watchx.io/
 Using Atom Editor and PlatformIO (PIO)
@@ -12,10 +11,11 @@ Files & Folder
 .\src                         Main Source file "main.cpp"
 .\lib                         Manually added libs like my own "Edge" lib
 .\include                     Manually added .h files (#include..) like the font or the calibration data files
+.\src_PreviousVersion         Revisions of main.cpp
 
 Libraries:
 You can add libraries to your PIO Project by adding them with the statement "lib_deps" to the file platformio.ini.
-PIO will then download the libs automatically.
+PIO will download the libs automatically.
 Or you download the libs manually to the "global" storage with "platformio lib -g install lib-name1, lib-name2....".
 
 Buttons
@@ -32,19 +32,30 @@ The Loop
   If watchX is up, the MPU's Sleep Mode is disabled and watchX's Position is checked.
   If the Position matches the "Read Position" (see Variables), the Display is powered on and shows the clock for a CLOCKTIME (see define's) time.
   If the Position doesn't match, the MPU Sleep Mode is enabled and the MCU goes back to sleep as well...
+End Loop
 
 USB Power prevents the System from sleeping
 
 HowTo Use:
 -Bring watchX in an readable Position (x: 25-85°, y: +/-10°, z doesn't matter) to get the Clock screen shown.
 -If the Clock is up, the Upper Left Button (1) opens the Setup Menu to adjust values.
--If the Clock is up, the Upper Right Button (2) opens the Stats Menu.
- -In "Stats" the Lower Right Button (3) Resets Uptime and Wakes
- -In "Stats" you see:
-  -Actual Time
-  -Uptime
-  -Shows: show the "Show Clock" counter
-  -Angles X, Y, Z
+  -In Setup you scroll through the values pressing Button (2) or (3) or hold them longer for continous scrolling
+  -Button (1) enables/disables modifying of the chosen values
+  -Modify values by pressing Button (2) or (3) or hold them longer for continous changes
+-If the Clock is up, the Upper Right Button (2) opens the Stats Screen.
+  -In "Stats" the Lower Right Button (3) Resets Uptime and Wakes
+  -In "Stats" you see:
+   -Actual Time
+   -Uptime
+   -Shows: show the "Show Clock" counter
+   -Angles X, Y, Z
+-If the Clock is up, the Lower Right Button (3) opens the Sensors Screen.
+ But you need to calibrate the MAG Chip by rotating watchX 360 Degrees in all directions.
+  -If calibration is done you see:
+    -MAG3110 Values in Degrees (°)
+    -Angles X, Y, Z
+    -BMP280 Temperature (T) and Altitude (A)
+   ...actualize each second:
 -With the Upper Left Button (1) you go back to the "Clock" Screen.
 
 USB Connection:
@@ -92,7 +103,7 @@ Values of around 60/120/250  and 500ms are good in case of reaction time and bat
 With  60ms SLEEPTIME the System runs for around xxx hrs
 With 120ms SLEEPTIME the System runs for around 30 hrs (10% Battery)
 With 250ms SLEEPTIME the System runs for around 41 hrs
-With 500ms SLEEPTIME the System runs for around xx hrs, Display "Power On" can take up to two seconds.
+With 500ms SLEEPTIME the System runs for around 46 hrs
 
 Libraries:
 -watchX libs by ArgeX                   see https://watchx.io/download.php
@@ -103,6 +114,7 @@ Libraries:
 -Adafruit Sleepy Dog                    see https://github.com/adafruit/Adafruit_SleepyDog
 -Streaming by Mikal Hart                see https://github.com/geneReeves/ArduinoStreaming fork of Mikal Hart's streaming5.zip
 -Edge by me                             see https://github.com/venice1200/Edge
+-JC_Button                              see https://github.com/JChristensen/JC_Button
 
 PlatformIO library list, see platformio.ini
 lib_deps =
@@ -114,6 +126,7 @@ lib_deps =
   Adafruit SleepyDog Library
   Streaming
   SparkFun MAG3110 Magnetometer Breakout Arduino Lib
+  JC_Button
 
 Tips & Tricks:
 -Angle calculation                      see https://electronics.stackexchange.com/questions/142037/calculating-angles-from-mpu6050
@@ -125,7 +138,7 @@ A watchX Sketch based on watchX Hardware and:
 watchX libs provided by ArgeX
 OLED Library SSD1306Ascii by Greiman
 i2cdevlib/mpu6050 by jrowberg
-DS3232RTC Library by JChristensen
+DS3232RTC and JC_Button Library by JChristensen
 Time maintained by Paul Stoffregen
 Streaming Lib by Mikal Hart
 Adafruit
