@@ -148,7 +148,9 @@ long int blink100millis = 0;
 const uint8_t blink100interval = 100;
 bool blink100 = false;
 //bool prev_blink100 = false;
-bool blink100_pos = false;  // Flanc
+bool blink100_pos = false;  // Positive Flanc
+bool blink100_neg = false;  // Negative Flanc
+
 
 //250ms Blinker Vars
 long int blink250millis = 0;
@@ -783,6 +785,7 @@ void loop() {
   blink250edge.update(blink250);
   blink500edge.update(blink500);
   blink100_pos = blink100edge.rising();
+  blink100_neg = blink100edge.falling();
   blink250_pos = blink250edge.rising();
   blink500_pos = blink500edge.rising();
 
@@ -1047,11 +1050,11 @@ void loop() {
 
     // SetupElement Value +/- by pressing Left Side Buttons shortly or hold for a longer time
     if ( menuEditMode && getMenuEditMode(menuIndex) ) {
-      if (b2pos || (b2long && blink250_pos)) {
+      if (b2pos || (b2long && (blink100_pos || blink100_neg))) {
         setupElement[menuIndex].value++;
         setupElement[menuIndex].changed = true;
       }
-      if (b3pos || (b3long && blink250_pos)) {
+      if (b3pos || (b3long && (blink100_pos || blink100_neg))) {
         setupElement[menuIndex].value--;
         setupElement[menuIndex].changed = true;
       }
